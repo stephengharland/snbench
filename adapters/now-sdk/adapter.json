@@ -3,7 +3,12 @@
     "tool": "ServiceNow SDK CLI (now-sdk)",
     "homepage": "https://www.npmjs.com/package/@servicenow/sdk",
     "version_cmd": "now-sdk --version | tail -1",
-    "allowed_tools": ["Bash(now-sdk:*)", "Bash(npx now-sdk:*)", "Read", "Write"],
+    "allowed_tools": [
+        "Bash(now-sdk:*)",
+        "Bash(npx now-sdk:*)",
+        "Read",
+        "Write"
+    ],
     "env": [],
-    "setup": "npm install -g @servicenow/sdk@4.11.2, then now-sdk auth --add <instance> --type basic --alias snbench and now-sdk auth --use snbench, as the same user as SNB_USER."
+    "setup": "npm install -g @servicenow/sdk, then now-sdk auth --add <instance> as the same user as SNB_USER, and make it the default with now-sdk auth --use <alias>."
 }
