@@ -10,6 +10,7 @@ import { client } from '../lib/sn.mjs'
 import { runTask } from '../lib/run.mjs'
 import { command, parseStream } from '../lib/agents.mjs'
 import { report } from '../lib/report.mjs'
+import { appScope } from '../lib/fixtures.mjs'
 import tasks from '../tasks/index.mjs'
 
 // Tables a real instance keeps history in, which the harness cannot or should not delete.
@@ -96,4 +97,10 @@ test('stream-json output gives usage, cost and the tool results where the instan
     assert.deepEqual(r, { tokens: { input: 5, output: 7, cache_read: 0, cache_write: 0 }, cost_usd: 0.01, turns: 3, instance_errors: 2 })
     assert.equal(parseStream(JSON.stringify({ type: 'result', num_turns: 1 })).turns, 1)
     assert.deepEqual(parseStream('not json'), {})
+})
+
+test('a long company code trims the tag so the app scope stays within 18 characters', () => {
+    assert.equal(appScope('12345', 'snbq7k2xp'), 'x_12345_snbq7k2xp')
+    assert.equal(appScope('2323512', 'snbq7k2xp'), 'x_2323512_snbq7k2x')
+    assert.throws(() => appScope('123456789', 'snbq7k2xp'))
 })
