@@ -1,0 +1,13 @@
+{
+    "mcpServers": {
+        "servicenow": {
+            "command": "npx",
+            "args": ["-y", "your-servicenow-mcp-server"],
+            "env": {
+                "SERVICENOW_INSTANCE_URL": "${SNB_INSTANCE}",
+                "SERVICENOW_USERNAME": "${SNB_USER}",
+                "SERVICENOW_PASSWORD": "${SNB_PASSWORD}"
+            }
+        }
+    }
+}

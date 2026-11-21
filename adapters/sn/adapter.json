@@ -1,0 +1,9 @@
+{
+    "name": "sn",
+    "tool": "sn (servicenow-cli, Rust)",
+    "homepage": "https://github.com/tehubersheezy/servicenow-cli",
+    "version_cmd": "sn --version",
+    "allowed_tools": ["Bash(sn:*)", "Read", "Write"],
+    "env": [],
+    "setup": "brew install tehubersheezy/sn/sn, then sn profile add snbench --instance <host> --username <user> --auth basic, as the same user as SNB_USER."
+}

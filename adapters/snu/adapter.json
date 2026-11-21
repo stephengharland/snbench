@@ -1,0 +1,9 @@
+{
+    "name": "snu",
+    "tool": "SN Utils CLI (snu)",
+    "homepage": "https://www.npmjs.com/package/@snutils/snu",
+    "version_cmd": "snu --version",
+    "allowed_tools": ["Bash(snu:*)", "Read", "Write"],
+    "env": [],
+    "setup": "npm install -g @snutils/snu. Sign in to the instance as the same user as SNB_USER in the browser where the SN Utils extension runs, start the bridge with snu serve --detach, and check snu context shows the instance as active."
+}
