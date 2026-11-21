@@ -11,6 +11,7 @@ const newId = () => randomBytes(16).toString('hex')
 const stamp = (d = new Date()) => d.toISOString().replace('T', ' ').slice(0, 19)
 const low = (s) => String(s ?? '').toLowerCase()
 const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+const unesc = (s) => s.replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&amp;/g, '&')
 
 export const ADMIN_ID = '6816f79cc0a8016401c5a33be04be441'
 export const SERVER_STEP = '41de4a935332120028bc29cac2dc349a'
@@ -425,6 +426,20 @@ function pointScan(store, table, id) {
     return progress(store, result.sys_id)
 }
 
+// Committing a retrieved update set applies each update's payload and leaves a local copy of the set.
+function commitSet(store, set) {
+    const local = store.insert('sys_update_set', { name: set.name, state: 'complete' })
+    for (const u of store.find('sys_update_xml', `remote_update_set=${set.sys_id}`)) {
+        const m = u.payload.match(/<record_update[^>]*><([a-z0-9_]+) action="[A-Z_]+">(.*)<\/\1><\/record_update>/s)
+        if (!m) continue
+        const row = {}
+        for (const f of m[2].matchAll(/<([a-z0-9_]+)(?:\s[^>]*)?>([^<]*)<\/\1>/g)) row[f[1]] = unesc(f[2])
+        if (store.table(m[1]).get(row.sys_id)) store.update(m[1], row.sys_id, row)
+        else store.insert(m[1], row)
+    }
+    store.update('sys_remote_update_set', set.sys_id, { state: 'committed', update_set: local.sys_id })
+}
+
 function orderNow(store, itemId, body) {
     const item = store.table('sc_cat_item').get(itemId)
     if (!item) return null
@@ -560,6 +575,14 @@ export function startMock({ port = 0 } = {}) {
                 if (!r) return notFound()
                 const suite = store.table('sys_atf_test_suite').get(r.test_suite)
                 return send(200, { result: { test_suite_status: r.status, test_suite_name: suite?.name, rolledup_test_success_count: Number(r.success_count), rolledup_test_failure_count: Number(r.failure_count), rolledup_test_error_count: 0, links: {} } })
+            }
+            if ((m = path.match(/^\/api\/sn_cicd\/update_set\/(preview|commit)\/([a-f0-9]{32})$/)) && req.method === 'POST') {
+                const set = store.table('sys_remote_update_set').get(m[2])
+                if (!set) return notFound()
+                if (m[1] === 'preview') store.update('sys_remote_update_set', set.sys_id, { state: 'previewed' })
+                else if (set.state !== 'previewed' && p.get('force_commit') !== 'true') return send(400, { error: { message: 'Preview the update set before committing it' } })
+                else commitSet(store, set)
+                return send(200, { result: progress(store, set.sys_id) })
             }
             if (path === '/api/sn_cicd/instance_scan/point_scan' && req.method === 'POST') {
                 return send(200, { result: pointScan(store, p.get('target_table'), p.get('target_sys_id')) })
