@@ -7,7 +7,7 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { startMock } from './mock.mjs'
 import { client } from '../lib/sn.mjs'
-import { runTask } from '../lib/run.mjs'
+import { runTask, exclusive } from '../lib/run.mjs'
 import { command, parseStream } from '../lib/agents.mjs'
 import { report } from '../lib/report.mjs'
 import { appScope } from '../lib/fixtures.mjs'
@@ -103,4 +103,15 @@ test('a long company code trims the tag so the app scope stays within 18 charact
     assert.equal(appScope('12345', 'snbq7k2xp'), 'x_12345_snbq7k2xp')
     assert.equal(appScope('2323512', 'snbq7k2xp'), 'x_2323512_snbq7k2x')
     assert.throws(() => appScope('123456789', 'snbq7k2xp'))
+})
+
+test('an exclusive task waits for the same task in another run to finish', async () => {
+    const seen = []
+    const one = (n) => exclusive('selftest', async () => {
+        seen.push('start ' + n)
+        await new Promise((r) => setTimeout(r, 50))
+        seen.push('end ' + n)
+    })
+    await Promise.all([one(1), one(2)])
+    assert.deepEqual(seen.map((x) => x.split(' ')[0]), ['start', 'end', 'start', 'end'])
 })
