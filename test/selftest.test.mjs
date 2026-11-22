@@ -2,7 +2,9 @@
 // passes, doing nothing fails, and neither leaves a tagged record behind.
 import { test, before, after } from 'node:test'
 import assert from 'node:assert/strict'
-import { mkdtempSync } from 'node:fs'
+import { mkdtempSync, readdirSync, readFileSync } from 'node:fs'
+import { execFile } from 'node:child_process'
+import { promisify } from 'node:util'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { startMock } from './mock.mjs'
@@ -126,6 +128,20 @@ test('an exclusive task waits for the same task in another run to finish', async
     })
     await Promise.all([one(1), one(2)])
     assert.deepEqual(seen.map((x) => x.split(' ')[0]), ['start', 'end', 'start', 'end'])
+})
+
+test('a resumed run keeps its attempts and runs only the missing ones', async () => {
+    const dir = mkdtempSync(join(tmpdir(), 'snbench-resume-'))
+    const env = { ...process.env, SNB_INSTANCE: mock.url, SNB_USER: 'any', SNB_PASSWORD: 'thing' }
+    const run = (...a) => promisify(execFile)(process.execPath, [join(import.meta.dirname, '../bin/snbench.mjs'), 'run', '--track', 'oracle', '--tasks', 'get-by-number', '--out', dir, ...a], { cwd: dir, env })
+    await run('--attempts', '1')
+    const file = join(dir, readdirSync(dir).find((f) => f.endsWith('.json')))
+    const first = JSON.parse(readFileSync(file, 'utf8')).attempts[0]
+    await run('--attempts', '2', '--resume', file)
+    const resumed = JSON.parse(readFileSync(file, 'utf8'))
+    assert.deepEqual(resumed.attempts.map((a) => a.attempt), [1, 2])
+    assert.equal(resumed.attempts[0].tag, first.tag)
+    assert.equal(resumed.resumed.length, 1)
 })
 
 test('the prompt names the scope and update set only when one is set', () => {
