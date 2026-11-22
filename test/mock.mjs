@@ -58,6 +58,10 @@ class Store {
         if (NUMBERS[table] && !row.number) row.number = NUMBERS[table] + String(++this.counter).padStart(7, '0')
         if (table === 'sys_user' && !row.name) row.name = [row.first_name, row.last_name].filter(Boolean).join(' ')
         this.table(table).set(row.sys_id, row)
+        // As on an instance, a new server script step comes with its default variables.
+        if (table === 'sys_atf_step' && row.step_config === SERVER_STEP)
+            for (const [variable, value] of [[SCRIPT_VAR, '// You can use this step to execute a variety of server-side javascript tests'], ['42f2564b73031300440211d8faf6a777', '3.1']])
+                this.insert('sys_variable_value', { document: 'sys_atf_step', document_key: row.sys_id, variable, value })
         return row
     }
     update(table, id, data) {
