@@ -8,6 +8,9 @@
         "Read",
         "Write"
     ],
+    "script_commands": [
+        "jsn eval"
+    ],
     "env": [
         "JSN_ALLOW_PLAINTEXT_CREDENTIAL_STORAGE"
     ],

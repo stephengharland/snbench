@@ -8,6 +8,9 @@
         "Read",
         "Write"
     ],
+    "script_commands": [
+        "sn script run"
+    ],
     "env": [],
     "setup": "brew install tehubersheezy/sn/sn, or the binary from the project's releases. Then sn profile add snbench --instance <host> --username <user> --auth basic --password-stdin, as the same user as SNB_USER, and make it the default with sn profile use snbench."
 }
