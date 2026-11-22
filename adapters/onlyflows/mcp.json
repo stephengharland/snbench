@@ -12,8 +12,10 @@
                 "SN_AUTH_TYPE": "basic",
                 "SN_USER": "${SNB_USER}",
                 "SN_PASSWORD": "${SNB_PASSWORD}",
-                "SN_ALLOWED_READ_TABLES": "*",
-                "SN_ALLOWED_WRITE_TABLES": "*"
+                "SN_ALLOWED_READ_TABLES": "*,sys_audit,sys_journal_field,sys_history_line,sys_audit_delete,sys_attachment_doc,sys_email",
+                "SN_ALLOWED_WRITE_TABLES": "*",
+                "SN_FIELD_POLICY_DEFINITIONS": "{\"sys_update_xml\":{\"readable\":[\"action\",\"application\",\"category\",\"comments\",\"name\",\"payload\",\"payload_hash\",\"remote_update_set\",\"replace_on_upgrade\",\"sys_created_by\",\"sys_created_on\",\"sys_id\",\"sys_mod_count\",\"sys_recorded_at\",\"sys_updated_by\",\"sys_updated_on\",\"table\",\"target_name\",\"type\",\"update_domain\",\"update_guid\",\"update_guid_history\",\"update_set\",\"view\"],\"writable\":[\"action\",\"application\",\"category\",\"comments\",\"name\",\"payload\",\"payload_hash\",\"remote_update_set\",\"replace_on_upgrade\",\"sys_created_by\",\"sys_created_on\",\"sys_id\",\"sys_mod_count\",\"sys_recorded_at\",\"sys_updated_by\",\"sys_updated_on\",\"table\",\"target_name\",\"type\",\"update_domain\",\"update_guid\",\"update_guid_history\",\"update_set\",\"view\"]}}",
+                "SN_ATF_EXECUTE": "true"
             }
         }
     }
