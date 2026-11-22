@@ -4,6 +4,7 @@ import { test, before, after } from 'node:test'
 import assert from 'node:assert/strict'
 import { mkdtempSync, readdirSync, readFileSync } from 'node:fs'
 import { execFile } from 'node:child_process'
+import { createServer } from 'node:http'
 import { promisify } from 'node:util'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
@@ -117,6 +118,25 @@ test('a long company code trims the tag so the app scope stays within 18 charact
     assert.equal(appScope('12345', 'snbq7k2xp'), 'x_12345_snbq7k2xp')
     assert.equal(appScope('2323512', 'snbq7k2xp'), 'x_2323512_snbq7k2x')
     assert.throws(() => appScope('123456789', 'snbq7k2xp'))
+})
+
+test('a property POST that landed but answered 500 is not inserted again', async () => {
+    const rows = []
+    const server = createServer((req, res) => {
+        res.setHeader('Content-Type', 'application/json')
+        if (req.method === 'GET') return res.end(JSON.stringify({ result: rows }))
+        let body = ''
+        req.on('data', (d) => (body += d)).on('end', () => {
+            const row = { sys_id: 'p' + rows.length, ...JSON.parse(body) }
+            if (rows.some((r) => r.name === row.name)) return res.writeHead(403).end('{"error":{"message":"Operation Failed"}}')
+            rows.push(row)
+            res.writeHead(500).end('{}')
+        })
+    })
+    await new Promise((r) => server.listen(0, r))
+    const made = await client(`http://localhost:${server.address().port}`, 'Basic x').create('sys_properties', { name: 'snbt.a', value: 'x' }).finally(() => server.close())
+    assert.equal(made.sys_id, 'p0')
+    assert.equal(rows.length, 1)
 })
 
 test('an exclusive task waits for the same task in another run to finish', async () => {
