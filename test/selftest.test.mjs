@@ -8,7 +8,7 @@ import { join } from 'node:path'
 import { startMock } from './mock.mjs'
 import { client } from '../lib/sn.mjs'
 import { runTask, exclusive } from '../lib/run.mjs'
-import { command, parseStream } from '../lib/agents.mjs'
+import { command, parseStream, prompt } from '../lib/agents.mjs'
 import { report } from '../lib/report.mjs'
 import { appScope } from '../lib/fixtures.mjs'
 import tasks from '../tasks/index.mjs'
@@ -126,4 +126,10 @@ test('an exclusive task waits for the same task in another run to finish', async
     })
     await Promise.all([one(1), one(2)])
     assert.deepEqual(seen.map((x) => x.split(' ')[0]), ['start', 'end', 'start', 'end'])
+})
+
+test('the prompt names the scope and update set only when one is set', () => {
+    const adapter = { guide: 'Use curl.' }
+    assert.match(prompt(adapter, 'Do it.', 'https://x', 'snbench harness'), /Global scope and the update set named `snbench harness`/)
+    assert.doesNotMatch(prompt(adapter, 'Do it.', 'https://x'), /update set/)
 })
