@@ -6,7 +6,8 @@
     "allowed_tools": [
         "Bash(jsn:*)",
         "Read",
-        "Write"
+        "Write",
+        "Edit(./**)"
     ],
     "script_commands": [
         "jsn eval"

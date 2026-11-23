@@ -6,7 +6,8 @@
     "allowed_tools": [
         "Bash(sn:*)",
         "Read",
-        "Write"
+        "Write",
+        "Edit(./**)"
     ],
     "script_commands": [
         "sn script run"

@@ -4,7 +4,8 @@
     "tool": "your MCP server",
     "homepage": "",
     "version_cmd": "",
-    "allowed_tools": ["mcp__servicenow", "Read", "Write"],
+    "allowed_tools": ["mcp__servicenow", "Read", "Write",
+        "Edit(./**)"],
     "env": ["SNB_USER", "SNB_PASSWORD"],
     "mcp": "mcp.json",
     "setup": "Copy this folder, put your server in mcp.json, remove the template line and fill in the rest."

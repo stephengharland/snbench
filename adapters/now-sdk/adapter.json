@@ -7,7 +7,8 @@
         "Bash(now-sdk:*)",
         "Bash(npx now-sdk:*)",
         "Read",
-        "Write"
+        "Write",
+        "Edit(./**)"
     ],
     "script_commands": [
         "now-sdk exec",

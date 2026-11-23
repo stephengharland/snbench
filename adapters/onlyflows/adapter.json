@@ -6,7 +6,8 @@
     "allowed_tools": [
         "mcp__servicenow",
         "Read",
-        "Write"
+        "Write",
+        "Edit(./**)"
     ],
     "env": [
         "SNB_USER",
