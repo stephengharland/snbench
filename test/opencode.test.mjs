@@ -78,6 +78,9 @@ test('runner environment passes provider input but not arbitrary config override
     try {
         const env = agentEnv(adapter, { SNB_INSTANCE: 'https://fixture.invalid' }, 'opencode')
         assert.equal(env.DEEPSEEK_API_KEY, 'fixture-not-secret')
+        for (const key of ['DBUS_SESSION_BUS_ADDRESS', 'XDG_RUNTIME_DIR']) {
+            assert.equal(env[key], process.env[key], `${key} must survive for desktop credential-store access`)
+        }
         assert.equal(env.OPENCODE_CONFIG_CONTENT, undefined)
         assert.equal(env.ANTHROPIC_SNB_FIXTURE_OVERRIDE, undefined)
         assert.equal(env.CLAUDE_CODE_SNB_FIXTURE_OVERRIDE, undefined)

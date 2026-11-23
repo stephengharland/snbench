@@ -71,5 +71,10 @@ Before trusting a real run:
    version's events. Confirm timeout behavior with a disposable slow request and
    inspect cost overshoot. A passing fixture test is not proof of live isolation.
 
-The implementation has not been live-tested with OpenCode or a ServiceNow instance.
-Permission enforcement and provider authentication remain manual acceptance gates.
+A manual `query-filtered` smoke test passed with OpenCode 2.3.2,
+`deepseek/deepseek-flash`, and jsn 5.5.10 on an Australia instance. This verifies
+one task, provider authentication and answer-file output, not the full benchmark
+or every permission boundary. Complete the isolation checks above for your setup.
+The runner preserves `DBUS_SESSION_BUS_ADDRESS` and `XDG_RUNTIME_DIR` so CLI
+credential stores can access the desktop session; provider secrets are not written
+to the generated configuration.
