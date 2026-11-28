@@ -12,6 +12,9 @@
     "script_commands": [
         "jsn eval"
     ],
+    "search_commands": [
+        "jsn discover"
+    ],
     "env": [
         "JSN_ALLOW_PLAINTEXT_CREDENTIAL_STORAGE"
     ],
