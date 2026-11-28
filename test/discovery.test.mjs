@@ -40,13 +40,16 @@ test('the report labels runs and shows discovery only when a run recorded it', (
     assert.doesNotMatch(report([{ adapter: 'x', track: 'agent', model: 'haiku', attempts: [{ task: 'a', pass: true, seconds: 1, teardown_errors: [] }] }]), /Help calls/)
 })
 
-test('later runs show their per-task score difference from run 1, and runs on different agents are flagged', () => {
-    const at = (task, pass, agent_model = 'claude-sonnet-5-5') => ({ task, pass, seconds: 1, teardown_errors: [], agent_model, claude_code_version: '2.1.308' })
-    const one = { adapter: 'jsn', track: 'find', model: 'sonnet', label: 'main', attempts: [at('a', false), at('a', false), at('b', true), at('c', false)] }
-    const two = { adapter: 'jsn', track: 'find', model: 'sonnet', label: 'catalog', attempts: [at('a', true), at('a', false), at('b', true), at('c', true, 'claude-sonnet-5-6')] }
+test('later runs show their per-task score, turns and help read difference from run 1, and runs on different agents are flagged', () => {
+    const at = (task, pass, turns, help_chars, agent_model = 'claude-sonnet-5-5') => ({ task, pass, seconds: 1, teardown_errors: [], turns, help_chars, agent_model, claude_code_version: '2.1.308' })
+    const one = { adapter: 'jsn', track: 'find', model: 'sonnet', label: 'main', attempts: [at('a', false, 4, 1000), at('a', false, 6, 3000), at('b', true, 3, 1000), at('c', false, 5, 1000)] }
+    const two = { adapter: 'jsn', track: 'find', model: 'sonnet', label: 'catalog', attempts: [at('a', true, 3, 4000), at('a', false, 3, 4000), at('b', true, 3, 2000), at('c', true, 2, 1000, 'claude-sonnet-5-6')] }
     const out = report([one, two])
-    // Differences per task: a +50, b 0, c +100; mean 50, standard deviation 50, standard error 50 / sqrt(3).
-    assert.match(out, /\| 2\. jsn \/ sonnet \(find\), catalog \| 3 \| \+50\.0 points ± 28\.9 \| 2 \| 0 \|/)
+    // Score per task: a +50, b 0, c +100; mean 50, standard deviation 50, standard error 50 / sqrt(3).
+    // Turns: a -2, b 0, c -3; mean -1.67, standard error 0.88. Help read: a +2000, b +1000, c 0; mean 1000, standard error 577.
+    assert.match(out, /\| 2\. jsn \/ sonnet \(find\), catalog \| 3 \| \+50\.0 points ± 28\.9 \| 2 \| 0 \| -1\.7 ± 0\.9 \| \+1000 ± 577 \|/)
+    // A run with no help measures, such as an agent-track run from before they were recorded, shows none.
+    assert.match(report([{ ...one, attempts: one.attempts.map(({ help_chars, ...x }) => x) }, two]), /\| 2 \| 0 \| -1\.7 ± 0\.9 \| - \|$/m)
     assert.match(out, /Agents differ across these runs: claude-sonnet-5-5 on Claude Code 2\.1\.308; claude-sonnet-5-6 on Claude Code 2\.1\.308\./)
     assert.doesNotMatch(report([one]), /difference from run 1|Agents differ/)
 })
